@@ -101,18 +101,18 @@ async def session_loop():
                 role = channel.guild.get_role(AIR_ROLE_ID)
                 await channel.send(f"{role.mention} ** session is started now. You can drop your links. Session will end in one hour. ** ")
 
-        # MORNING END (safe trigger)
+        # MORNING END
         if morning_active and now.hour == 12 and now.minute >= 0:
             morning_active = False
             channel = bot.get_channel(MORNING_CHANNEL_ID)
             if channel:
                 role = channel.guild.get_role(AIR_ROLE_ID)
                 total = len(morning_links)
-                engage = "Engage to all posts within 1.5 hours" if total < 15 else "Engage to all posts within 2 hours"
+                engage = "Engage for 1.5 hours" if total < 15 else "Engage for 2 hours"
                 await channel.send(f"{role.mention}** Morning session closed.\nTotal links: {total}\n{engage}** ")
 
         # EVENING START
-        if now.hour == 19 and now.minute == 47 and not evening_active:
+        if now.hour == 18 and now.minute == 30 and not evening_active:
             evening_active = True
             evening_links.clear()
             channel = bot.get_channel(EVENING_CHANNEL_ID)
@@ -120,14 +120,14 @@ async def session_loop():
                 role = channel.guild.get_role(AIR_ROLE_ID)
                 await channel.send(f"{role.mention} ** session is started now. You can drop your links. Session will end in one hour.** ")
 
-        # EVENING END (FIXED — never miss)
-        if evening_active and now.hour == 19 and now.minute >= 49:
+        # EVENING END
+        if evening_active and now.hour == 19 and now.minute >= 35:
             evening_active = False
             channel = bot.get_channel(EVENING_CHANNEL_ID)
             if channel:
                 role = channel.guild.get_role(AIR_ROLE_ID)
                 total = len(evening_links)
-                engage = "Engage with all posts within 1.5 hours" if total < 15 else "Engage to all postis within 2 hours"
+                engage = "Engage for 1.5 hours" if total < 15 else "Engage for 2 hours"
                 await channel.send(f"{role.mention}** Evening session closed.\nTotal links: {total}\n{engage} ** ")
 
         await asyncio.sleep(20)
@@ -154,10 +154,12 @@ async def on_message(message):
     if evening_active and message.channel.id == EVENING_CHANNEL_ID:
         await handle_link(message, evening_links)
 
-    # ===== COMMANDS WHEN TAGGED =====
+    # ===== WHEN BOT TAGGED =====
     if bot.user in message.mentions:
         text = message.content.lower()
+        now = datetime.now(INDIA_TZ)
 
+        # ===== PRICE =====
         if "price" in text or "fdv" in text:
             coin = text.split()[-1]
             data = get_crypto_price(coin)
@@ -167,12 +169,36 @@ async def on_message(message):
                 await message.reply("coin not found", mention_author=False)
             return
 
-        if "schedule" in text or "reminder" in text or "event" in text:
-            now = datetime.now(INDIA_TZ)
-            today = now.strftime("%A").lower()
-            reminder = WEEKLY_REMINDERS.get(today, "No schedule")
-            await message.reply(reminder, mention_author=False)
+        # ===== DAY SYSTEM =====
+        day_map = [
+            "monday","tuesday","wednesday",
+            "thursday","friday","saturday","sunday"
+        ]
+
+        if "today" in text:
+            day = now.strftime("%A").lower()
+            await message.reply(WEEKLY_REMINDERS.get(day,"No schedule"), mention_author=False)
             return
+
+        if "tomorrow" in text:
+            day = (now + timedelta(days=1)).strftime("%A").lower()
+            await message.reply(WEEKLY_REMINDERS.get(day,"No schedule"), mention_author=False)
+            return
+
+        if "yesterday" in text:
+            day = (now - timedelta(days=1)).strftime("%A").lower()
+            await message.reply(WEEKLY_REMINDERS.get(day,"No schedule"), mention_author=False)
+            return
+
+        for d in day_map:
+            if d in text:
+                await message.reply(WEEKLY_REMINDERS.get(d,"No schedule"), mention_author=False)
+                return
+
+        # default = today
+        today = now.strftime("%A").lower()
+        await message.reply(WEEKLY_REMINDERS.get(today,"No schedule"), mention_author=False)
+        return
 
     await bot.process_commands(message)
 
