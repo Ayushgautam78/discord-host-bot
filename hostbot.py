@@ -16,15 +16,15 @@ AIR_ROLE_ID = 1471207018139226175
 
 INDIA_TZ = pytz.timezone("Asia/Kolkata")
 
-# ===== WEEKLY SCHEDULE =====
+# ===== WEEKLY SCHEDULE (BOLD + SPACING) =====
 WEEKLY_REMINDERS = {
-    "monday": "Super Monday\n\nDawn || n/a ||\nSentient || 9:30 PM IST geoguesser ||\nPrismaX || n/a ||",
-    "tuesday": "Tuesday\n\nSentient || smashkart 9:30 PM IST ||\nDawn || n/a ||\nPrismaX || trivia tango 8:00 PM IST ||",
-    "wednesday": "Wednesday\n\nSentient || kirka 9:30 PM IST ||\nPrismaX || not applicable ||\nDawn || N/A ||",
-    "thursday": "Thursday\n\nSentient || rebus puzzle 9:30 PM IST ||\nPrismaX || fun mode 7:30 PM IST ||\nDawn || n/a ||",
-    "friday": "Friday\n\nSentient || among us 9:30 PM IST ||\nPrismaX || content clinic 7:30 PM IST ||\nDawn || sunray ceremony 8:30 PM IST ||",
-    "saturday": "No events today. Chill.",
-    "sunday": "No events today. Rest."
+"monday": "**Super Monday**\n\n**Dawn || n/a ||**\n\n**Sentient || 9:30 PM IST geoguesser ||**\n\n**PrismaX || n/a ||**",
+"tuesday": "**Tuesday**\n\n**Sentient || smashkart 9:30 PM IST ||**\n\n**Dawn || n/a ||**\n\n**PrismaX || trivia tango 8:00 PM IST ||**",
+"wednesday": "**Wednesday**\n\n**Sentient || kirka 9:30 PM IST ||**\n\n**PrismaX || not applicable ||**\n\n**Dawn || n/a ||**",
+"thursday": "**Thursday**\n\n**Sentient || rebus puzzle 9:30 PM IST ||**\n\n**PrismaX || fun mode 7:30 PM IST ||**\n\n**Dawn || n/a ||**",
+"friday": "**Friday**\n\n**Sentient || among us 9:30 PM IST ||**\n\n**PrismaX || content clinic 7:30 PM IST ||**\n\n**Dawn || sunray ceremony 8:30 PM IST ||**",
+"saturday": "**No events today. Chill.**",
+"sunday": "**No events today. Rest.**"
 }
 
 intents = discord.Intents.default()
@@ -54,11 +54,11 @@ def get_crypto_price(query):
         marketcap = data["market_data"]["market_cap"]["usd"]
         fdv = data["market_data"]["fully_diluted_valuation"]["usd"]
 
-        return f"""{name} ({symbol})
-Price: ${price}
-24h: {change:.2f}%
-Market Cap: ${marketcap:,}
-FDV: ${fdv:,}"""
+        return f"""**{name} ({symbol})**
+**Price:** ${price}
+**24h:** {change:.2f}%
+**Market Cap:** ${marketcap:,}
+**FDV:** ${fdv:,}"""
     except:
         return None
 
@@ -77,8 +77,8 @@ async def auto_daily_reminder():
         channel = bot.get_channel(REMINDER_CHANNEL_ID)
         if channel:
             today = datetime.now(INDIA_TZ).strftime("%A").lower()
-            text = WEEKLY_REMINDERS.get(today, "No schedule")
-            await channel.send(f"@everyone {text}")
+            text = WEEKLY_REMINDERS.get(today, "**No schedule**")
+            await channel.send(f"@everyone\n{text}")
 
         await asyncio.sleep(60)
 
@@ -99,7 +99,7 @@ async def session_loop():
             channel = bot.get_channel(MORNING_CHANNEL_ID)
             if channel:
                 role = channel.guild.get_role(AIR_ROLE_ID)
-                await channel.send(f"{role.mention} ** session is started now. You can drop your links. Session will end in one hour. ** ")
+                await channel.send(f"{role.mention}\n**Morning session started. Drop your links. Session ends in 1 hour.**")
 
         # MORNING END
         if morning_active and now.hour == 12 and now.minute >= 0:
@@ -108,27 +108,27 @@ async def session_loop():
             if channel:
                 role = channel.guild.get_role(AIR_ROLE_ID)
                 total = len(morning_links)
-                engage = "Engage for 1.5 hours" if total < 15 else "Engage for 2 hours"
-                await channel.send(f"{role.mention}** Morning session closed.\nTotal links: {total}\n{engage}** ")
+                engage = "Engage within 1.5 hours" if total < 15 else "Engage within 2 hours"
+                await channel.send(f"{role.mention}\n**Morning session closed.**\n**Total links:** {total}\n**{engage}**")
 
         # EVENING START
-        if now.hour == 18 and now.minute == 30 and not evening_active:
+        if now.hour == 21 and now.minute == 03 and not evening_active:
             evening_active = True
             evening_links.clear()
             channel = bot.get_channel(EVENING_CHANNEL_ID)
             if channel:
                 role = channel.guild.get_role(AIR_ROLE_ID)
-                await channel.send(f"{role.mention} ** session is started now. You can drop your links. Session will end in one hour.** ")
+                await channel.send(f"{role.mention}\n**Evening session started. Drop your links. Session ends in 1 hour.**")
 
         # EVENING END
-        if evening_active and now.hour == 19 and now.minute >= 35:
+        if evening_active and now.hour == 21 and now.minute >= 05:
             evening_active = False
             channel = bot.get_channel(EVENING_CHANNEL_ID)
             if channel:
                 role = channel.guild.get_role(AIR_ROLE_ID)
                 total = len(evening_links)
-                engage = "Engage for 1.5 hours" if total < 15 else "Engage for 2 hours"
-                await channel.send(f"{role.mention}** Evening session closed.\nTotal links: {total}\n{engage} ** ")
+                engage = "Engage within 1.5 hours" if total < 15 else "Engage within 2 hours"
+                await channel.send(f"{role.mention}\n**Evening session closed.**\n**Total links:** {total}\n**{engage}**")
 
         await asyncio.sleep(20)
 
@@ -147,58 +147,64 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    # ===== SESSION LINK TRACK =====
     if morning_active and message.channel.id == MORNING_CHANNEL_ID:
         await handle_link(message, morning_links)
 
     if evening_active and message.channel.id == EVENING_CHANNEL_ID:
         await handle_link(message, evening_links)
 
-    # ===== WHEN BOT TAGGED =====
     if bot.user in message.mentions:
         text = message.content.lower()
         now = datetime.now(INDIA_TZ)
 
+        for m in message.mentions:
+            text = text.replace(f"<@{m.id}>", "")
+            text = text.replace(f"<@!{m.id}>", "")
+        text = text.strip()
+
         # ===== PRICE =====
         if "price" in text or "fdv" in text:
-            coin = text.split()[-1]
-            data = get_crypto_price(coin)
-            if data:
-                await message.reply(data, mention_author=False)
-            else:
-                await message.reply("coin not found", mention_author=False)
+            parts = text.split()
+            if len(parts) > 0:
+                coin = parts[-1]
+                data = get_crypto_price(coin)
+                if data:
+                    await message.reply(data, mention_author=False)
+                else:
+                    await message.reply("**Coin not found**", mention_author=False)
             return
 
-        # ===== DAY SYSTEM =====
-        day_map = [
+        # ===== EVENT KEYWORDS =====
+        trigger_words = [
+            "event","schedule","reminder",
+            "today","tomorrow","yesterday",
             "monday","tuesday","wednesday",
             "thursday","friday","saturday","sunday"
         ]
 
+        if not any(word in text for word in trigger_words):
+            return
+
         if "today" in text:
             day = now.strftime("%A").lower()
-            await message.reply(WEEKLY_REMINDERS.get(day,"No schedule"), mention_author=False)
+            await message.reply(WEEKLY_REMINDERS.get(day,"**No schedule**"), mention_author=False)
             return
 
         if "tomorrow" in text:
             day = (now + timedelta(days=1)).strftime("%A").lower()
-            await message.reply(WEEKLY_REMINDERS.get(day,"No schedule"), mention_author=False)
+            await message.reply(WEEKLY_REMINDERS.get(day,"**No schedule**"), mention_author=False)
             return
 
         if "yesterday" in text:
             day = (now - timedelta(days=1)).strftime("%A").lower()
-            await message.reply(WEEKLY_REMINDERS.get(day,"No schedule"), mention_author=False)
+            await message.reply(WEEKLY_REMINDERS.get(day,"**No schedule**"), mention_author=False)
             return
 
-        for d in day_map:
+        days = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
+        for d in days:
             if d in text:
-                await message.reply(WEEKLY_REMINDERS.get(d,"No schedule"), mention_author=False)
+                await message.reply(WEEKLY_REMINDERS.get(d,"**No schedule**"), mention_author=False)
                 return
-
-        # default = today
-        today = now.strftime("%A").lower()
-        await message.reply(WEEKLY_REMINDERS.get(today,"No schedule"), mention_author=False)
-        return
 
     await bot.process_commands(message)
 
@@ -208,7 +214,7 @@ async def handle_link(message, storage):
         return
 
     if "/i/status/" in message.content:
-        warn = await message.reply("Wrong link format. Use username/status format. Fix within 10 minutes or deleted.", mention_author=True)
+        await message.reply("**Wrong link format. Fix within 10 minutes or deleted.**", mention_author=True)
 
         async def delete_later():
             await asyncio.sleep(600)
