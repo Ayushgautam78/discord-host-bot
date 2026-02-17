@@ -108,11 +108,11 @@ async def session_loop():
             if channel:
                 role = channel.guild.get_role(AIR_ROLE_ID)
                 total = len(morning_links)
-                engage = "Engage for 1.5 hours" if total < 15 else "Engage for 2 hours"
+                engage = "Engage to all posts within 1.5 hours" if total < 15 else "Engage to all posts within 2 hours"
                 await channel.send(f"{role.mention}** Morning session closed.\nTotal links: {total}\n{engage}** ")
 
         # EVENING START
-        if now.hour == 19 and now.minute == 40 and not evening_active:
+        if now.hour == 19 and now.minute == 47 and not evening_active:
             evening_active = True
             evening_links.clear()
             channel = bot.get_channel(EVENING_CHANNEL_ID)
@@ -121,13 +121,13 @@ async def session_loop():
                 await channel.send(f"{role.mention} ** session is started now. You can drop your links. Session will end in one hour.** ")
 
         # EVENING END (FIXED — never miss)
-        if evening_active and now.hour == 19 and now.minute >= 42:
+        if evening_active and now.hour == 19 and now.minute >= 49:
             evening_active = False
             channel = bot.get_channel(EVENING_CHANNEL_ID)
             if channel:
                 role = channel.guild.get_role(AIR_ROLE_ID)
                 total = len(evening_links)
-                engage = "Engage for 1.5 hours" if total < 15 else "Engage for 2 hours"
+                engage = "Engage with all posts within 1.5 hours" if total < 15 else "Engage to all postis within 2 hours"
                 await channel.send(f"{role.mention}** Evening session closed.\nTotal links: {total}\n{engage} ** ")
 
         await asyncio.sleep(20)
