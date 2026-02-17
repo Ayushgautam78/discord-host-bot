@@ -118,7 +118,7 @@ async def session_loop():
             await channel.send(f"{role.mention} ** session is started now. You can drop your links. Session will end in one hour.** ")
 
         # EVENING END
-        if now.hour == 19 and now.minute == 30 and evening_active:
+        if now.hour == 19 and now.minute == 35 and evening_active:
             evening_active = False
             channel = bot.get_channel(EVENING_CHANNEL_ID)
             role = channel.guild.get_role(AIR_ROLE_ID)
