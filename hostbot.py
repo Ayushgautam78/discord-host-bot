@@ -112,7 +112,7 @@ async def session_loop():
                 await channel.send(f"{role.mention}\n**Morning session closed.**\n**Total links:** {total}\n**{engage}**")
 
         # EVENING START
-        if now.hour == 21 and now.minute == 03 and not evening_active:
+        if now.hour == 21 and now.minute == 5 and not evening_active:
             evening_active = True
             evening_links.clear()
             channel = bot.get_channel(EVENING_CHANNEL_ID)
@@ -121,7 +121,7 @@ async def session_loop():
                 await channel.send(f"{role.mention}\n**Evening session started. Drop your links. Session ends in 1 hour.**")
 
         # EVENING END
-        if evening_active and now.hour == 21 and now.minute >= 05:
+        if evening_active and now.hour == 21 and now.minute >= 7:
             evening_active = False
             channel = bot.get_channel(EVENING_CHANNEL_ID)
             if channel:
