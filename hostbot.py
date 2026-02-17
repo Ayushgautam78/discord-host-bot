@@ -98,7 +98,7 @@ async def session_loop():
             morning_links.clear()
             channel = bot.get_channel(MORNING_CHANNEL_ID)
             role = channel.guild.get_role(AIR_ROLE_ID)
-            await channel.send(f"{role.mention} session is started now. You can drop your links. Session will end in one hour.")
+            await channel.send(f"{role.mention} ** session is started now. You can drop your links. Session will end in one hour. ** ")
 
         # MORNING END
         if now.hour == 12 and now.minute == 0 and morning_active:
@@ -107,7 +107,7 @@ async def session_loop():
             role = channel.guild.get_role(AIR_ROLE_ID)
             total = len(morning_links)
             engage = "Engage for 1.5 hours" if total < 15 else "Engage for 2 hours"
-            await channel.send(f"{role.mention} Morning session closed.\nTotal links: {total}\n{engage}")
+            await channel.send(f"{role.mention}** Morning session closed.\nTotal links: {total}\n{engage}** ")
 
         # EVENING START
         if now.hour == 18 and now.minute == 30 and not evening_active:
@@ -115,7 +115,7 @@ async def session_loop():
             evening_links.clear()
             channel = bot.get_channel(EVENING_CHANNEL_ID)
             role = channel.guild.get_role(AIR_ROLE_ID)
-            await channel.send(f"{role.mention} session is started now. You can drop your links. Session will end in one hour.")
+            await channel.send(f"{role.mention} ** session is started now. You can drop your links. Session will end in one hour.** ")
 
         # EVENING END
         if now.hour == 19 and now.minute == 30 and evening_active:
@@ -124,7 +124,7 @@ async def session_loop():
             role = channel.guild.get_role(AIR_ROLE_ID)
             total = len(evening_links)
             engage = "Engage for 1.5 hours" if total < 15 else "Engage for 2 hours"
-            await channel.send(f"{role.mention} Evening session closed.\nTotal links: {total}\n{engage}")
+            await channel.send(f"{role.mention}** Evening session closed.\nTotal links: {total}\n{engage} ** ")
 
         await asyncio.sleep(20)
 
