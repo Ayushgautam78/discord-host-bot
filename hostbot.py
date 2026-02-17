@@ -162,36 +162,13 @@ async def on_message(message):
             else:
                 await message.reply("coin not found", mention_author=False)
             return
-if "schedule" in text or "reminder" in text or "event" in text:
 
-    now = datetime.now(INDIA_TZ)
-    today_name = now.strftime("%A").lower()
-
-    # specific day check first (friday event, monday event etc)
-    for day in WEEKLY_REMINDERS:
-        if day in text:
-            reminder_text = WEEKLY_REMINDERS.get(day, "No schedule")
-            await message.reply(reminder_text, mention_author=False)
+        if "schedule" in text or "reminder" in text or "event" in text:
+            now = datetime.now(INDIA_TZ)
+            today = now.strftime("%A").lower()
+            reminder = WEEKLY_REMINDERS.get(today, "No schedule")
+            await message.reply(reminder, mention_author=False)
             return
-
-    # today
-    if "today" in text:
-        reminder_text = WEEKLY_REMINDERS.get(today_name, "No schedule")
-        await message.reply(reminder_text, mention_author=False)
-        return
-
-    # tomorrow
-    if "tomorrow" in text:
-        tomorrow = now + timedelta(days=1)
-        tomorrow_name = tomorrow.strftime("%A").lower()
-        reminder_text = WEEKLY_REMINDERS.get(tomorrow_name, "No schedule")
-        await message.reply(reminder_text, mention_author=False)
-        return
-
-    # default = today
-    reminder_text = WEEKLY_REMINDERS.get(today_name, "No schedule")
-    await message.reply(reminder_text, mention_author=False)
-    return
 
     await bot.process_commands(message)
 
