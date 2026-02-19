@@ -88,86 +88,104 @@ async def daily_schedule():
             today = datetime.now(INDIA_TZ).strftime("%A").lower()
             await ch.send(f"@everyone\n{WEEKLY_REMINDERS.get(today,'No schedule')}")
 
-# ===== SESSION LOOP (SAFE WINDOW SYSTEM) =====
-async def session_loop():
-    global morning_active, evening_active
-    await bot.wait_until_ready()
-
-    while True:
-        now = datetime.now(INDIA_TZ)
-        h, m = now.hour, now.minute
-
-        try:
-            # MORNING WARNING
-            if h == 12 and 31 <= m <= 52:
-                ch = bot.get_channel(MORNING_CHANNEL_ID)
-                role = ch.guild.get_role(AIR_ROLE_ID)
-                await ch.send(f"{role.mention} Morning session starting in 10 minutes")
-                await asyncio.sleep(70)
-
-            # MORNING START
-            if h == 12 and 32 <= m <= 2 and not morning_active:
-                morning_active = True
-                morning_links.clear()
-                ch = bot.get_channel(MORNING_CHANNEL_ID)
-                role = ch.guild.get_role(AIR_ROLE_ID)
-                await ch.send(f"{role.mention} Morning session started. Drop links.")
-                await asyncio.sleep(70)
-
-            # MORNING END WARNING
-            if h == 12 and 33 <= m <= 52:
-                ch = bot.get_channel(MORNING_CHANNEL_ID)
-                role = ch.guild.get_role(AIR_ROLE_ID)
-                await ch.send(f"{role.mention} Morning session ending in 10 minutes")
-                await asyncio.sleep(70)
-
-            # MORNING END
-            if h == 12 and 34 <= m <= 2 and morning_active:
-                morning_active = False
-                ch = bot.get_channel(MORNING_CHANNEL_ID)
-                role = ch.guild.get_role(AIR_ROLE_ID)
-                total = len(morning_links)
-                engage = "Engage 1.5 hr" if total < 15 else "Engage 2 hr"
-                await ch.send(f"{role.mention} Morning closed.\nTotal links: {total}\n{engage}")
-                await asyncio.sleep(70)
-
-            # EVENING WARNING
-            if h == 18 and 50 <= m <= 52:
-                ch = bot.get_channel(EVENING_CHANNEL_ID)
-                role = ch.guild.get_role(AIR_ROLE_ID)
-                await ch.send(f"{role.mention} Evening session starting in 10 minutes")
-                await asyncio.sleep(70)
-
-            # EVENING START
-            if h == 19 and 0 <= m <= 2 and not evening_active:
-                evening_active = True
-                evening_links.clear()
-                ch = bot.get_channel(EVENING_CHANNEL_ID)
-                role = ch.guild.get_role(AIR_ROLE_ID)
-                await ch.send(f"{role.mention} Evening session started. Drop links.")
-                await asyncio.sleep(70)
-
-            # EVENING END WARNING
-            if h == 19 and 50 <= m <= 52:
-                ch = bot.get_channel(EVENING_CHANNEL_ID)
-                role = ch.guild.get_role(AIR_ROLE_ID)
-                await ch.send(f"{role.mention} Evening session ending in 10 minutes")
-                await asyncio.sleep(70)
-
-            # EVENING END
-            if h == 20 and 0 <= m <= 2 and evening_active:
-                evening_active = False
-                ch = bot.get_channel(EVENING_CHANNEL_ID)
-                role = ch.guild.get_role(AIR_ROLE_ID)
-                total = len(evening_links)
-                engage = "Engage 1.5 hr" if total < 15 else "Engage 2 hr"
-                await ch.send(f"{role.mention} Evening closed.\nTotal links: {total}\n{engage}")
-                await asyncio.sleep(70)
 
         except Exception as e:
             print("Session error:", e)
 
-        await asyncio.sleep(25)
+        await asyncio.sleep(25)# ===== SESSION LOOP (SAFE WINDOW SYSTEM) =====
+async def session_loop():
+    global morning_active, evening_active
+    global morning_links, evening_links
+
+    await bot.wait_until_ready()
+
+    warned_morning_start = False
+    warned_morning_end = False
+    warned_evening_start = False
+    warned_evening_end = False
+
+    while True:
+        now = datetime.now(INDIA_TZ)
+
+        # ===== MORNING TIMES =====
+        morning_start = now.replace(hour=12, minute=34, second=0, microsecond=0)
+        morning_end = morning_start + timedelta(hours=1)
+
+        # --- 10 MIN WARNING START ---
+        if not warned_morning_start and morning_start - timedelta(minutes=10) <= now < morning_start:
+            warned_morning_start = True
+            ch = bot.get_channel(MORNING_CHANNEL_ID)
+            if ch:
+                role = ch.guild.get_role(AIR_ROLE_ID)
+                await ch.send(f"{role.mention} Morning session starting in 10 minutes")
+
+        # --- START ---
+        if not morning_active and morning_start <= now < morning_start + timedelta(seconds=40):
+            morning_active = True
+            morning_links.clear()
+            warned_morning_end = False
+            ch = bot.get_channel(MORNING_CHANNEL_ID)
+            if ch:
+                role = ch.guild.get_role(AIR_ROLE_ID)
+                await ch.send(f"{role.mention}\nMorning session started. Drop links.")
+
+        # --- 10 MIN END WARNING ---
+        if morning_active and not warned_morning_end and morning_end - timedelta(minutes=10) <= now < morning_end:
+            warned_morning_end = True
+            ch = bot.get_channel(MORNING_CHANNEL_ID)
+            if ch:
+                role = ch.guild.get_role(AIR_ROLE_ID)
+                await ch.send(f"{role.mention} Morning session ending in 10 minutes")
+
+        # --- END ---
+        if morning_active and now >= morning_end:
+            morning_active = False
+            warned_morning_start = False
+            warned_morning_end = False
+            ch = bot.get_channel(MORNING_CHANNEL_ID)
+            if ch:
+                role = ch.guild.get_role(AIR_ROLE_ID)
+                total = len(morning_links)
+                await ch.send(f"{role.mention}\nMorning session ended\nTotal links: {total}")
+
+        # ===== EVENING =====
+        evening_start = now.replace(hour=19, minute=0, second=0, microsecond=0)
+        evening_end = evening_start + timedelta(hours=1)
+
+        if not warned_evening_start and evening_start - timedelta(minutes=10) <= now < evening_start:
+            warned_evening_start = True
+            ch = bot.get_channel(EVENING_CHANNEL_ID)
+            if ch:
+                role = ch.guild.get_role(AIR_ROLE_ID)
+                await ch.send(f"{role.mention} Evening session starting in 10 minutes")
+
+        if not evening_active and evening_start <= now < evening_start + timedelta(seconds=40):
+            evening_active = True
+            evening_links.clear()
+            warned_evening_end = False
+            ch = bot.get_channel(EVENING_CHANNEL_ID)
+            if ch:
+                role = ch.guild.get_role(AIR_ROLE_ID)
+                await ch.send(f"{role.mention}\nEvening session started. Drop links.")
+
+        if evening_active and not warned_evening_end and evening_end - timedelta(minutes=10) <= now < evening_end:
+            warned_evening_end = True
+            ch = bot.get_channel(EVENING_CHANNEL_ID)
+            if ch:
+                role = ch.guild.get_role(AIR_ROLE_ID)
+                await ch.send(f"{role.mention} Evening session ending in 10 minutes")
+
+        if evening_active and now >= evening_end:
+            evening_active = False
+            warned_evening_start = False
+            warned_evening_end = False
+            ch = bot.get_channel(EVENING_CHANNEL_ID)
+            if ch:
+                role = ch.guild.get_role(AIR_ROLE_ID)
+                total = len(evening_links)
+                await ch.send(f"{role.mention}\nEvening session ended\nTotal links: {total}")
+
+        await asyncio.sleep(20)
 
 # ===== MESSAGE HANDLER =====
 @bot.event
