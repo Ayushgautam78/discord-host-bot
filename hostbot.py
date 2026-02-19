@@ -110,7 +110,7 @@ async def session_loop():
         m = now.minute
 
         # MORNING START 11:00
-        if h == 12 and m == 52 and not morning_start_sent:
+        if h == 11 and m == 0 and not morning_start_sent:
             morning_start_sent = True
             morning_active = True
             morning_links.clear()
@@ -121,7 +121,7 @@ async def session_loop():
                 await ch.send(f"{role.mention}\nMorning session started. Drop links. Ends at 12:00")
 
         # MORNING END 12:00
-        if h == 12 and m == 53 and not morning_end_sent:
+        if h == 12 and m == 0 and not morning_end_sent:
             morning_end_sent = True
             morning_active = False
 
