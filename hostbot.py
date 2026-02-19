@@ -27,8 +27,11 @@ evening_active = False
 morning_links = set()
 evening_links = set()
 
-# prevent duplicate triggers
-last_trigger = {}
+# anti repeat
+morning_start_sent = False
+morning_end_sent = False
+evening_start_sent = False
+evening_end_sent = False
 
 # ===== WEEKLY EVENTS =====
 WEEKLY_REMINDERS = {
@@ -88,61 +91,73 @@ async def daily_schedule():
             today = datetime.now(INDIA_TZ).strftime("%A").lower()
             await ch.send(f"@everyone\n{WEEKLY_REMINDERS.get(today,'No schedule')}")
 
-
-        except Exception as e:
-            print("Session error:", e)
-
-        await asyncio.sleep(25)# ===== SESSION LOOP (SAFE WINDOW SYSTEM) =====
+# ===== SESSION LOOP =====
 async def session_loop():
     global morning_active, evening_active
     global morning_links, evening_links
+    global morning_start_sent, morning_end_sent, evening_start_sent, evening_end_sent
 
     await bot.wait_until_ready()
 
     while True:
         now = datetime.now(INDIA_TZ)
+        h = now.hour
+        m = now.minute
 
-        # MORNING START
-        if now.hour == 12 and now.minute == 44 and not morning_active:
+        # MORNING START 11:00
+        if h == 11 and m == 0 and not morning_start_sent:
+            morning_start_sent = True
             morning_active = True
             morning_links.clear()
-            channel = bot.get_channel(MORNING_CHANNEL_ID)
-            if channel:
-                role = channel.guild.get_role(AIR_ROLE_ID)
-                await channel.send(f"{role.mention}\n**Morning session started. Drop your links. Session ends in 1 hour.**")
 
-        # MORNING END
-        if morning_active and now.hour == 12 and now.minute >= 46:
+            ch = bot.get_channel(MORNING_CHANNEL_ID)
+            if ch:
+                role = ch.guild.get_role(AIR_ROLE_ID)
+                await ch.send(f"{role.mention}\nMorning session started. Drop links. Ends at 12:00")
+
+        # MORNING END 12:00
+        if h == 12 and m == 0 and not morning_end_sent:
+            morning_end_sent = True
             morning_active = False
-            channel = bot.get_channel(MORNING_CHANNEL_ID)
-            if channel:
-                role = channel.guild.get_role(AIR_ROLE_ID)
+
+            ch = bot.get_channel(MORNING_CHANNEL_ID)
+            if ch:
+                role = ch.guild.get_role(AIR_ROLE_ID)
                 total = len(morning_links)
                 engage = "Engage within 1.5 hours" if total < 15 else "Engage within 2 hours"
-                await channel.send(f"{role.mention}\n**Morning session closed.**\n**Total links:** {total}\n**{engage}**")
+                await ch.send(f"{role.mention}\nMorning session closed.\nTotal links: {total}\n{engage}")
 
-        # EVENING START
-        if now.hour == 19 and now.minute == 0 and not evening_active:
+        # EVENING START 7PM
+        if h == 19 and m == 0 and not evening_start_sent:
+            evening_start_sent = True
             evening_active = True
             evening_links.clear()
-            channel = bot.get_channel(EVENING_CHANNEL_ID)
-            if channel:
-                role = channel.guild.get_role(AIR_ROLE_ID)
-                await channel.send(f"{role.mention}\n**Evening session started. Drop your links. Session ends in 1 hour.**")
 
-        # EVENING END
-        if evening_active and now.hour == 20 and now.minute >= 0:
+            ch = bot.get_channel(EVENING_CHANNEL_ID)
+            if ch:
+                role = ch.guild.get_role(AIR_ROLE_ID)
+                await ch.send(f"{role.mention}\nEvening session started. Drop links. Ends at 8:00")
+
+        # EVENING END 8PM
+        if h == 20 and m == 0 and not evening_end_sent:
+            evening_end_sent = True
             evening_active = False
-            channel = bot.get_channel(EVENING_CHANNEL_ID)
-            if channel:
-                role = channel.guild.get_role(AIR_ROLE_ID)
+
+            ch = bot.get_channel(EVENING_CHANNEL_ID)
+            if ch:
+                role = ch.guild.get_role(AIR_ROLE_ID)
                 total = len(evening_links)
                 engage = "Engage within 1.5 hours" if total < 15 else "Engage within 2 hours"
-                await channel.send(f"{role.mention}\n**Evening session closed.**\n**Total links:** {total}\n**{engage}**")
+                await ch.send(f"{role.mention}\nEvening session closed.\nTotal links: {total}\n{engage}")
+
+        # RESET FLAGS DAILY
+        if h == 0 and m == 1:
+            morning_start_sent = False
+            morning_end_sent = False
+            evening_start_sent = False
+            evening_end_sent = False
 
         await asyncio.sleep(20)
-
-
 
 # ===== MESSAGE HANDLER =====
 @bot.event
@@ -152,7 +167,6 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    # LINK TRACKING
     if morning_active and message.channel.id == MORNING_CHANNEL_ID:
         await handle_link(message, morning_links)
 
@@ -168,7 +182,7 @@ async def on_message(message):
 
         now = datetime.now(INDIA_TZ)
 
-        # PERSONAL REMINDER
+        # REMINDER
         if "remind" in text or "set reminder" in text or "schedule" in text:
             match = re.search(r'(\d{1,2}:\d{2})', text)
             if match:
@@ -195,7 +209,7 @@ async def on_message(message):
                 await message.reply("Coin not found", mention_author=False)
             return
 
-        # DAY EVENTS
+        # EVENTS
         if "today" in text:
             day = now.strftime("%A").lower()
             await message.reply(WEEKLY_REMINDERS.get(day,"No schedule"), mention_author=False)
