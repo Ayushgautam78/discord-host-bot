@@ -108,7 +108,7 @@ async def session_loop():
         now = datetime.now(INDIA_TZ)
 
         # ===== MORNING TIMES =====
-        morning_start = now.replace(hour=12, minute=34, second=0, microsecond=0)
+        morning_start = now.replace(hour=12, minute=39, second=0, microsecond=0)
         morning_end = morning_start + timedelta(hours=1)
 
         # --- 10 MIN WARNING START ---
