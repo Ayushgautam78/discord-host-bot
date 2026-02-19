@@ -50,6 +50,7 @@ def get_crypto_price(query):
         search = requests.get(f"https://api.coingecko.com/api/v3/search?query={query}").json()
         if not search["coins"]:
             return None
+
         coin_id = search["coins"][0]["id"]
         data = requests.get(f"https://api.coingecko.com/api/v3/coins/{coin_id}").json()
 
@@ -58,11 +59,15 @@ def get_crypto_price(query):
         price = data["market_data"]["current_price"]["usd"]
         change = data["market_data"]["price_change_percentage_24h"]
         marketcap = data["market_data"]["market_cap"]["usd"]
+        fdv = data["market_data"]["fully_diluted_valuation"]["usd"]
 
-        return f"**{name} ({symbol})**\nPrice: ${price}\n24h: {change:.2f}%\nMC: ${marketcap:,}"
+        return f"""**{name} ({symbol})**
+Price: ${price}
+24h: {change:.2f}%
+Market Cap: ${marketcap:,}
+FDV: ${fdv:,}"""
     except:
         return None
-
 # ===== PERSONAL REMINDER LOOP =====
 async def reminder_loop():
     await bot.wait_until_ready()
@@ -105,7 +110,7 @@ async def session_loop():
         m = now.minute
 
         # MORNING START 11:00
-        if h == 11 and m == 0 and not morning_start_sent:
+        if h == 12 and m == 52 and not morning_start_sent:
             morning_start_sent = True
             morning_active = True
             morning_links.clear()
@@ -116,7 +121,7 @@ async def session_loop():
                 await ch.send(f"{role.mention}\nMorning session started. Drop links. Ends at 12:00")
 
         # MORNING END 12:00
-        if h == 12 and m == 0 and not morning_end_sent:
+        if h == 12 and m == 53 and not morning_end_sent:
             morning_end_sent = True
             morning_active = False
 
