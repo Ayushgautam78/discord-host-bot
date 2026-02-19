@@ -99,14 +99,14 @@ async def session_loop():
 
         try:
             # MORNING WARNING
-            if h == 12 and 28 <= m <= 52:
+            if h == 12 and 31 <= m <= 52:
                 ch = bot.get_channel(MORNING_CHANNEL_ID)
                 role = ch.guild.get_role(AIR_ROLE_ID)
                 await ch.send(f"{role.mention} Morning session starting in 10 minutes")
                 await asyncio.sleep(70)
 
             # MORNING START
-            if h == 12 and 30 <= m <= 2 and not morning_active:
+            if h == 12 and 32 <= m <= 2 and not morning_active:
                 morning_active = True
                 morning_links.clear()
                 ch = bot.get_channel(MORNING_CHANNEL_ID)
@@ -115,7 +115,7 @@ async def session_loop():
                 await asyncio.sleep(70)
 
             # MORNING END WARNING
-            if h == 12 and 32 <= m <= 52:
+            if h == 12 and 33 <= m <= 52:
                 ch = bot.get_channel(MORNING_CHANNEL_ID)
                 role = ch.guild.get_role(AIR_ROLE_ID)
                 await ch.send(f"{role.mention} Morning session ending in 10 minutes")
