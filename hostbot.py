@@ -16,16 +16,16 @@ AIR_ROLE_ID = 1471207018139226175
 
 INDIA_TZ = pytz.timezone("Asia/Kolkata")
 
-# ===== RAM REMINDERS (NO FILE = NO CRASH) =====
+# ===== MEMORY REMINDERS =====
 REMINDERS = []
 
-# ===== WEEKLY SCHEDULE =====
+# ===== FULL WEEKLY EVENTS (YOUR ORIGINAL) =====
 WEEKLY_REMINDERS = {
-"monday": "**Super Monday**\n\n**Dawn || n/a ||**\n\n**Sentient || 9:30 PM IST geoguesser ||**",
-"tuesday": "**Tuesday**\n\n**Sentient || smashkart 9:30 PM IST ||**",
-"wednesday": "**Wednesday**\n\n**Sentient || kirka 9:30 PM IST ||**",
-"thursday": "**Thursday**\n\n**Sentient || rebus puzzle 9:30 PM IST ||**",
-"friday": "**Friday**\n\n**Sentient || among us 9:30 PM IST ||**",
+"monday": "**Super Monday**\n\n**Dawn || n/a ||**\n\n**Sentient || 9:30 PM IST geoguesser ||**\n\n**PrismaX || n/a ||**",
+"tuesday": "**Tuesday**\n\n**Sentient || smashkart 9:30 PM IST ||**\n\n**Dawn || n/a ||**\n\n**PrismaX || trivia tango 8:00 PM IST ||**",
+"wednesday": "**Wednesday**\n\n**Sentient || kirka 9:30 PM IST ||**\n\n**PrismaX || not applicable ||**\n\n**Dawn || n/a ||**",
+"thursday": "**Thursday**\n\n**Sentient || rebus puzzle 9:30 PM IST ||**\n\n**PrismaX || fun mode 7:30 PM IST ||**\n\n**Dawn || n/a ||**",
+"friday": "**Friday**\n\n**Sentient || among us 9:30 PM IST ||**\n\n**PrismaX || content clinic 7:30 PM IST ||**\n\n**Dawn || sunray ceremony 8:30 PM IST ||**",
 "saturday": "**No events today. Chill.**",
 "sunday": "**No events today. Rest.**"
 }
@@ -34,25 +34,25 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-morning_active = False
-evening_active = False
-morning_links = set()
-evening_links = set()
-
 # ===== REMINDER LOOP =====
 async def reminder_loop():
     await bot.wait_until_ready()
     while True:
-        now = datetime.now(INDIA_TZ).strftime("%H:%M")
+        try:
+            now = datetime.now(INDIA_TZ).strftime("%H:%M")
 
-        for r in REMINDERS[:]:
-            if r["time"] == now:
-                channel = bot.get_channel(r["channel"])
-                if channel:
-                    await channel.send(f"<@{r['user']}> Reminder: {r['text']}")
-                REMINDERS.remove(r)
+            for r in REMINDERS[:]:
+                if r["time"] == now:
+                    channel = bot.get_channel(r["channel"])
+                    if channel:
+                        await channel.send(f"<@{r['user']}> ⏰ Reminder: {r['text']}")
+                    REMINDERS.remove(r)
 
-        await asyncio.sleep(30)
+            await asyncio.sleep(20)
+
+        except Exception as e:
+            print("Reminder loop error:", e)
+            await asyncio.sleep(20)
 
 # ===== CRYPTO =====
 def get_crypto_price(query):
@@ -82,12 +82,10 @@ async def on_ready():
 # ===== MESSAGE =====
 @bot.event
 async def on_message(message):
-    global morning_active, evening_active
 
     if message.author == bot.user:
         return
 
-    # ONLY when bot tagged
     if bot.user in message.mentions:
         text = message.content.lower()
 
@@ -138,6 +136,19 @@ async def on_message(message):
             day = now.strftime("%A").lower()
             await message.reply(WEEKLY_REMINDERS.get(day,"No schedule"), mention_author=False)
             return
+
+        # ===== TOMORROW =====
+        if "tomorrow" in text:
+            day = (now + timedelta(days=1)).strftime("%A").lower()
+            await message.reply(WEEKLY_REMINDERS.get(day,"No schedule"), mention_author=False)
+            return
+
+        # ===== SPECIFIC DAY =====
+        days = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
+        for d in days:
+            if d in text:
+                await message.reply(WEEKLY_REMINDERS.get(d,"No schedule"), mention_author=False)
+                return
 
     await bot.process_commands(message)
 
