@@ -38,8 +38,8 @@ WEEKLY_REMINDERS = {
 "monday": "**Super Monday**\n\n**Dawn || n/a ||**\n\n**Sentient || <t:1771603244:t> geoguesser ||**\n\n**PrismaX || n/a ||**",
 "tuesday": "**Tuesday**\n\n**Sentient || smashkart <t:1771603244:t>  ||**\n\n**Dawn || n/a ||**\n\n**PrismaX || trivia tango <t:1771597845:t> ||**",
 "wednesday": "**Wednesday**\n\n**Sentient || kirka <t:1771603244:t> ||**\n\n**PrismaX || not applicable ||**\n\n**Dawn || n/a ||**",
-"thursday": "**Thursday**\n\n**Sentient || rebus puzzle <t:1771603244:t> ||**\n\n**PrismaX || fun mode 7:30 PM IST ||**\n\n**Dawn || n/a ||**",
-"friday": "**Friday**\n\n**Sentient || among us <t:1771603244:t> ||**\n\n**PrismaX || content clinic 7:30 PM IST ||**\n\n**Dawn || sunray ceremony 8:30 PM IST ||**",
+"thursday": "**Thursday**\n\n**Sentient || rebus puzzle <t:1771603244:t> ||**\n\n**PrismaX || fun mode <t:1771596045:t> ||**\n\n**Dawn || n/a ||**",
+"friday": "**Friday**\n\n**Sentient || among us <t:1771603244:t> ||**\n\n**PrismaX || content clinic <t:1771596045:t> ||**\n\n**Dawn || sunray ceremony 8:30 PM IST ||**",
 "saturday": "**No events today. Chill.**",
 "sunday": "**No events today. Rest.**"
 }
