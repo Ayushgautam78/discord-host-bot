@@ -35,11 +35,11 @@ evening_end_sent = False
 
 # ===== WEEKLY EVENTS =====
 WEEKLY_REMINDERS = {
-"monday": "**Super Monday**\n\n**Dawn || n/a ||**\n\n**Sentient || 9:30 PM IST geoguesser ||**\n\n**PrismaX || n/a ||**",
-"tuesday": "**Tuesday**\n\n**Sentient || smashkart 9:30 PM IST ||**\n\n**Dawn || n/a ||**\n\n**PrismaX || trivia tango 8:00 PM IST ||**",
-"wednesday": "**Wednesday**\n\n**Sentient || kirka 9:30 PM IST ||**\n\n**PrismaX || not applicable ||**\n\n**Dawn || n/a ||**",
-"thursday": "**Thursday**\n\n**Sentient || rebus puzzle 9:30 PM IST ||**\n\n**PrismaX || fun mode 7:30 PM IST ||**\n\n**Dawn || n/a ||**",
-"friday": "**Friday**\n\n**Sentient || among us 9:30 PM IST ||**\n\n**PrismaX || content clinic 7:30 PM IST ||**\n\n**Dawn || sunray ceremony 8:30 PM IST ||**",
+"monday": "**Super Monday**\n\n**Dawn || n/a ||**\n\n**Sentient || <t:1771603244:t> geoguesser ||**\n\n**PrismaX || n/a ||**",
+"tuesday": "**Tuesday**\n\n**Sentient || smashkart <t:1771603244:t>  ||**\n\n**Dawn || n/a ||**\n\n**PrismaX || trivia tango 8:00 PM IST ||**",
+"wednesday": "**Wednesday**\n\n**Sentient || kirka <t:1771603244:t> ||**\n\n**PrismaX || not applicable ||**\n\n**Dawn || n/a ||**",
+"thursday": "**Thursday**\n\n**Sentient || rebus puzzle <t:1771603244:t> ||**\n\n**PrismaX || fun mode 7:30 PM IST ||**\n\n**Dawn || n/a ||**",
+"friday": "**Friday**\n\n**Sentient || among us <t:1771603244:t> ||**\n\n**PrismaX || content clinic 7:30 PM IST ||**\n\n**Dawn || sunray ceremony 8:30 PM IST ||**",
 "saturday": "**No events today. Chill.**",
 "sunday": "**No events today. Rest.**"
 }
